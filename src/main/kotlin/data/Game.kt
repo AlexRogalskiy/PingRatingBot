@@ -3,7 +3,7 @@ package data
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Game private constructor(
+data class Game private constructor(
     val players: Pair<Long, Long>,
     val score: Pair<Int, Int>,
     val datetime: Long,

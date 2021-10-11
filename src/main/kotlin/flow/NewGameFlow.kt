@@ -30,13 +30,26 @@ class NewGameFlow(state: State) : Flow(state) {
                 }
             }
             Steps.WAIT_FOR_OPPONENT -> {
+                val authorId = update.message.from.id
                 opponent = tryParseContact(update)
-                if (opponent == null) {
-                    i18n.SECOND_PLAYER_NOT_REGISTERED
-                } else {
-                    registerRequest(update.message.from.id to opponent!!, score!!, sender)
-                    flowFinish()
-                    i18n.CONFIRM_MESSAGE_SENT
+                when (opponent) {
+                    null -> {
+                        i18n.SECOND_PLAYER_NOT_REGISTERED
+                    }
+                    authorId -> {
+                        i18n.SELF_PLAY
+                    }
+                    else -> {
+                        val opponent = opponent
+                        val score = score
+                        if (opponent == null || score == null) {
+                            flowFinish()
+                            throw IllegalStateException("Flow error: opponent and score must be available now")
+                        }
+                        registerRequest( authorId to opponent, score, sender)
+                        flowFinish()
+                        i18n.CONFIRM_MESSAGE_SENT
+                    }
                 }
             }
         }

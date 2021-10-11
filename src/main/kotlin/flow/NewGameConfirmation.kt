@@ -1,5 +1,6 @@
 package flow
 
+import core.EloCalculator
 import data.GameRequest
 import data.RatingUpdate
 import data.User
@@ -48,8 +49,9 @@ class NewGameConfirmation : KoinComponent {
             ?: throw IllegalStateException("user must be already registered")
 
         if (answer) {
-            val firstRating = RatingUpdate(request.players.first, 0)
-            val secondRating = RatingUpdate(request.players.second, 0)
+            val diff = EloCalculator.ratingDiff(author.rating to responder.rating, request.score)
+            val firstRating = RatingUpdate(request.players.first, diff.first, author.rating + diff.first)
+            val secondRating = RatingUpdate(request.players.second, diff.second, author.rating + diff.second)
             storage.confirmGameRequest(request.requestCode, firstRating to secondRating)
             notifyGameConfirmed(request, firstRating to secondRating, author, responder)
         } else {
@@ -60,12 +62,12 @@ class NewGameConfirmation : KoinComponent {
 
     private fun notifyGameConfirmed(
         request: GameRequest,
-        ratingUpdates: Pair<RatingUpdate, RatingUpdate>,
+        updates: Pair<RatingUpdate, RatingUpdate>,
         author: User,
         responder: User
     ) {
-        val authorText = i18n.GAME_CONFIRM_FOR_AUTHOR(responder.aliasOrName(), ratingUpdates.first.diff, 0)
-        val responderText = i18n.GAME_CONFIRM_FOR_RESPONDER(author.aliasOrName(), ratingUpdates.second.diff, 0)
+        val authorText = i18n.GAME_CONFIRM_FOR_AUTHOR(responder.aliasOrName(), updates.first.newRating, updates.first.diff)
+        val responderText = i18n.GAME_CONFIRM_FOR_RESPONDER(author.aliasOrName(), updates.second.newRating, updates.second.diff)
 
         sender.executeAsync(SendMessage(author.chatId.toString(), authorText))
         sender.executeAsync(SendMessage(responder.chatId.toString(), responderText))

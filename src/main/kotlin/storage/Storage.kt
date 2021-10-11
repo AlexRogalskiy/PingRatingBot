@@ -13,7 +13,7 @@ interface Storage {
     )
     fun rejectGameRequest(code: String)
 
-    fun addUser(user: User)
+    fun addNewUser(user: User)
     fun updateUser(id: Long, chatId: Long, name: String, alias: String?)
     fun getUserById(id: Long): User?
     fun getUserByAlias(alias: String): User?

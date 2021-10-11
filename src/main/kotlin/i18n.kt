@@ -1,8 +1,6 @@
-import data.RatingDataType
-
 @Suppress("FunctionName")
 object i18n {
-    fun START_MESSAGE(currentRating: RatingDataType) =
+    fun START_MESSAGE(currentRating: Int) =
         "Привет, я бот подсчета рейтинга для пинг-понга.\n" +
                 "твой текущий рейтинг = $currentRating, узнать его и место в топе можно отправив /info.\n" +
                 "После игры один из игроков отправляет мне комманду /new_game\n" +
@@ -14,11 +12,12 @@ object i18n {
     const val NEW_GAME_SCORE_REQUEST =
         "Пришли мне результат, сколько партий выйграл(а) ты и сколько оппонент. Два числа через пробел.\n Например: 2 3"
     const val NEW_GAME_OPPONENT_REQUEST =
-        "Пришли мне алиас второго игрока, например @gordinmitya. Или поделись контактом."
+        "Пришли мне алиас второго игрока с @ или поделись контактом."
     const val SECOND_PLAYER_NOT_REGISTERED =
         "Второй игрок не найден.\nЕсли он(а) еще не пользовался этим ботом - пусть напишет мне любое сообщение. А потом пришли мне его контакт ещё раз."
     const val CONFIRM_MESSAGE_SENT =
         "Второму игроку отправлено сообщение для подтверждения игры. После подтверждения я пришлю новые рейтинги."
+    const val SELF_PLAY = "Игра с самим собой не поддерживается. ¯\\_(ツ)_/¯"
 
     // New game conformation
     fun CONFIRM_GAME_REQUEST(firstPlayer: String, score: Pair<Int, Int>): String {
@@ -29,16 +28,16 @@ object i18n {
     const val OK = "OK"
     const val FALSE_REQUEST = "Забудем про эту игру."
 
-    private fun RATING_CHANGED(newRating: RatingDataType, diff: RatingDataType): String {
+    private fun RATING_CHANGED(newRating: Int, diff: Int): String {
         val plusSign = if (diff >= 0) "+" else ""
         return "Теперь твой рейтинг $newRating ($plusSign$diff)."
     }
 
-    fun GAME_CONFIRM_FOR_AUTHOR(responder: String, newRating: RatingDataType, diff: RatingDataType) =
-        "$responder подтвердил результаты игры.\n${i18n.RATING_CHANGED(newRating, diff)}"
+    fun GAME_CONFIRM_FOR_AUTHOR(responder: String, newRating: Int, diff: Int) =
+        "$responder подтвердил результаты игры.\n${RATING_CHANGED(newRating, diff)}"
 
-    fun GAME_CONFIRM_FOR_RESPONDER(author: String, newRating: RatingDataType, diff: RatingDataType) =
-        "Игра с $author подтверждена.\n${i18n.RATING_CHANGED(newRating, diff)}"
+    fun GAME_CONFIRM_FOR_RESPONDER(author: String, newRating: Int, diff: Int) =
+        "Игра с $author подтверждена.\n${RATING_CHANGED(newRating, diff)}"
 
     fun GAME_REJECTED(responder: String, score: Pair<Int, Int>) =
         "$responder отклонил запись об игре со счетом ${score.first} ${score.second}."

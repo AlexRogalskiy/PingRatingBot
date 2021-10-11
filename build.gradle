@@ -7,6 +7,12 @@ plugins {
 group 'ru.gordinmitya'
 version '1.0'
 
+application {
+    distTar {
+        archiveFileName = 'pingpong.tar'
+    }
+}
+
 repositories {
     mavenCentral()
 }

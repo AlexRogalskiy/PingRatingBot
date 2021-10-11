@@ -1,5 +1,6 @@
 package storage
 
+import DbConfigProvider
 import data.Game
 import data.GameRequest
 import data.RatingUpdate
@@ -8,10 +9,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.File
 
 @Serializable
-class JsonFileStorage private constructor() : Storage {
+class JsonFileStorage private constructor() : Storage, KoinComponent {
+    private val dbConfigProvider by inject<DbConfigProvider>()
+
     private val requests = mutableListOf<GameRequest>()
     private val games = mutableListOf<Game>()
     private val users = mutableListOf<User>()
@@ -85,16 +90,14 @@ class JsonFileStorage private constructor() : Storage {
 
     private fun save() {
         val json = Json.encodeToString(this)
-        File(DB_PATH).outputStream().bufferedWriter().use {
+        File(dbConfigProvider.dbFilePath).outputStream().bufferedWriter().use {
             it.write(json)
         }
     }
 
     companion object {
-        const val DB_PATH = "/home/mitya/Desktop/db.json"
-
-        fun load(): JsonFileStorage {
-            val file = File(DB_PATH)
+        fun load(dbConfigProvider: DbConfigProvider): JsonFileStorage {
+            val file = File(dbConfigProvider.dbFilePath)
             if (!file.exists()) {
                 return JsonFileStorage()
             }

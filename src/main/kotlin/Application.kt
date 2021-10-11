@@ -15,15 +15,19 @@ import storage.JsonFileStorage
 import storage.StateHolder
 import storage.Storage
 
-object Application: KoinComponent {
+object Application : KoinComponent {
 
     @Suppress("USELESS_CAST")
     private val amazingModule = module {
-        single { EnvConfigProvider() } binds arrayOf(BotConfigProvider::class, WebConfigProvider::class)
+        single { EnvConfigProvider() } binds arrayOf(
+            BotConfigProvider::class,
+            WebConfigProvider::class,
+            DbConfigProvider::class
+        )
         single { InMemoryStateHolder() as StateHolder }
         single { AmazingBot() as UpdatesHandler }
         single { BotWrapper(get(), get()) } binds arrayOf(LongPollingBot::class, AbsSender::class)
-        single { JsonFileStorage.load() as Storage }
+        single { JsonFileStorage.load(get()) as Storage }
         single { AmazingWeb(get()) as KtorWeb }
     }
 
@@ -38,7 +42,8 @@ object Application: KoinComponent {
 
         val webConfig = koin.get<WebConfigProvider>()
         val web = koin.get<KtorWeb>()
-        embeddedServer(Netty,
+        embeddedServer(
+            Netty,
             host = webConfig.host,
             port = webConfig.port,
             module = web.getModule()
